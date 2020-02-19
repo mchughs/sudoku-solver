@@ -23,15 +23,15 @@
   (+ x (* y 9)))
 
 (defn nav-grid [grid x y]
-  (let [idx (get-index x y)]
+  (let [idx (coords->index x y)]
     (get grid idx)))
 
 (defn col [grid x]
   (->> grid (drop x) (take-nth 9)))
 
 (defn row [grid y]
-  (let [start (get-index 0 y)]
-    (subvec grid start 9)))
+  (let [start (coords->index 0 y)]
+    (subvec grid start (+ start 9))))
 
 (defn square [grid x y]
   (let [[x0 y0] (map #(-> % (quot 3) (* 3)) [x y])
@@ -45,17 +45,20 @@
   (->> coll (remove zero?) set))
 
 (defn possible? [grid x y n]
+  (assert (< 0 n 10))
   (let [taken-set (->> [(col grid x) (row grid y) (square grid x y)]
                        (map already-taken-numbers)
                        (apply clojure.set/union))]
     (-> n taken-set not)))
 
-(defn solve [grid] ;;TODO get it actually working
-  (loop [grid grid]
-    (doseq [idx (range (* 9 9))]
-      (let [curr-value (get grid idx)]
-        (if (zero? curr-value)
-          (for [n (range 10)]
-            (let [[x y] (index->coords idx)]
-              (if (possible? grid x y n)
-                (recur (assoc grid idx n))))))))))
+; (defn solve [grid] ;;TODO get it actually working
+;   (loop [grid grid]
+;     (doseq [idx (range (* 9 9))]
+;       (let [curr-value (get grid idx)]
+;         (if (zero? curr-value)
+;           (for [n (range 10)]
+;             (let [[x y] (index->coords idx)]
+;               (if (possible? grid x y n)
+;                 (recur (assoc grid idx n))
+;                 (recur (assoc grid idx 0)))))
+;           grid)))))
